@@ -1,10 +1,8 @@
 package org.grails.plugin.handlebars
 
-import org.lesscss.LessException
-
 class NodeJSHandlebarsPrecompiler {
 
-	boolean compress = true
+	Boolean compress = false
 	List<String> helpers = []
 
 	static isAvailable() {
