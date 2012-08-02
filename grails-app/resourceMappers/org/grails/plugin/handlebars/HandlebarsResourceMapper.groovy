@@ -20,7 +20,7 @@ class HandlebarsResourceMapper implements GrailsApplicationAware {
 
     def map(ResourceMeta resource, config) {
 
-        Precompiler precompiler = new Precompiler()
+        def precompiler = getPreCompiler(config)
         File originalFile = resource.processedFile
         File input = getOriginalFileSystemFile(resource.sourceUrl)
 
@@ -44,6 +44,16 @@ class HandlebarsResourceMapper implements GrailsApplicationAware {
         }
     }
 
+	private getPreCompiler(config) {
+		if (NodeJSHandlebarsPrecompiler.isAvailable())
+			new NodeJSHandlebarsPrecompiler(
+					compress: getString(config, 'compress', true),
+					helpers: getList(config, 'helpers', [])
+			)
+		else
+			new Precompiler()
+	}
+
     String calculateTemplateName(ResourceMeta resource, config) {
         String pathSeparator = getString(config, 'templatesPathSeparator', '/')
         String root = getString(config, 'templatesRoot')
@@ -64,9 +74,19 @@ class HandlebarsResourceMapper implements GrailsApplicationAware {
         templateName.split('/').findAll().join(pathSeparator)
     }
 
-    private String getString(Map config, String key, String defaultVal = null) {
+    private getString(config, key, defaultVal = null) {
         config[key] instanceof String ? config[key] : defaultVal
     }
+
+	private getList(config, key, defaultVal = null) {
+		if (config[key] instanceof String) {
+			config[key].split(',')*.trim()
+		} else if (config[key] instanceof List) {
+			config[key]
+		} else {
+			defaultVal
+		}
+	}
 
     private String generateCompiledFileFromOriginal(String original) {
         original.replaceAll(/(?i)\.handlebars$/, '_handlebars.js')
