@@ -47,7 +47,7 @@ class HandlebarsResourceMapper implements GrailsApplicationAware {
 	private getPreCompiler(config) {
 		if (NodeJSHandlebarsPrecompiler.isAvailable())
 			new NodeJSHandlebarsPrecompiler(
-					compress: getString(config, 'compress', true),
+					compress: getBoolean(config, 'compress', false),
 					helpers: getList(config, 'helpers', [])
 			)
 		else
@@ -76,6 +76,10 @@ class HandlebarsResourceMapper implements GrailsApplicationAware {
 
     private getString(config, key, defaultVal = null) {
         config[key] instanceof String ? config[key] : defaultVal
+    }
+
+    private getBoolean(config, key, defaultVal = null) {
+        config[key] instanceof Boolean ? config[key] : defaultVal
     }
 
 	private getList(config, key, defaultVal = null) {
